@@ -1,0 +1,20 @@
+
+sequenceDiagram
+autonumber
+participant Issuer
+participant Backend as BackendAPI
+participant IPFS as IPFSService
+participant Chain as CertificateNFT
+participant DB as OffchainIndex
+
+Issuer->>Backend: handleCertificateUpload(file, metadataInput)
+Backend->>Backend: fileHash = computeFileHash(file) // SHA-256
+Backend->>IPFS: pinFile(file)
+IPFS-->>Backend: cidFile
+Backend->>Backend: json = generateMetadata(metadataInput, fileHash, cidFile)
+Backend->>IPFS: pinJSON(json)
+IPFS-->>Backend: cidJson
+Backend->>Backend: uri = buildTokenURI(cidJson) // ipfs://CIDv1
+Backend->>Chain: mint(to, uri, fileHash)
+Chain-->>Backend: emit CertificateMinted(tokenId, issuer, to, fileHash, uri)
+Backend->>DB: storeIssuanceRecord({tokenId, to, issuer, fileHash, cidFile, cidJson, uri, txHash, block})

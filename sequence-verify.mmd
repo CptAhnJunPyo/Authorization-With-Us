@@ -1,0 +1,22 @@
+
+sequenceDiagram
+autonumber
+participant Verifier
+participant Backend as BackendAPI
+participant Chain as CertificateNFT
+participant IPFS as IPFSService
+
+alt Verifier has originalFile
+  Verifier->>Backend: verify(tokenId, originalFile)
+  Backend->>Backend: fileHash' = computeFileHash(originalFile)
+else Only tokenId
+  Verifier->>Chain: tokenURI(tokenId)
+  Chain-->>Verifier: ipfs://cidJson
+  Verifier->>IPFS: GET cidJson -> get file_cid
+  Verifier->>IPFS: GET file_cid -> originalFile
+  Verifier->>Backend: verify(tokenId, originalFile)
+  Backend->>Backend: fileHash' = computeFileHash(originalFile)
+end
+Backend->>Chain: read certificateHash, isRevoked, ownerOf, issuer
+Chain-->>Backend: on-chain data
+Backend-->>Verifier: result = (fileHash'==certificateHash && !isRevoked)
