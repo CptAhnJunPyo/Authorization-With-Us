@@ -9,14 +9,13 @@ This pack contains:
 - **ERC‑721 Metadata JSON** example
 - **Tech Checklist** for implementation
 
-
+---
 
 ## 1) UML Class Diagram (Mermaid)
 
 ```mermaid
 classDiagram
 direction TB
-
 class User {
     <<Abstract>>
     +String walletAddress
@@ -39,7 +38,6 @@ class Holder {
 
 class Verifier {
     +verifyCertificate(tokenId, originalFile)
-    +verifyByCid(tokenId)  // tải file gốc từ IPFS (tùy chọn)
 }
 
 class CertificateNFT {
@@ -56,17 +54,6 @@ class CertificateNFT {
     +ownerOf(tokenId)
     +isValid(tokenId) bool
     +setIssuer(address issuer, bool enabled)
-
-    %% Events (note)
-    %% event CertificateMinted(uint256 tokenId, address issuer, address to, bytes32 certificateHash, string uri)
-    %% event CertificateRevoked(uint256 tokenId, address issuer, string reason)
-}
-
-class AccessControl {
-    <<Library>>
-    +grantRole(role, account)
-    +revokeRole(role, account)
-    +hasRole(role, account) bool
 }
 
 class BackendAPI {
@@ -84,13 +71,13 @@ class BackendAPI {
 
 class IPFSService {
     <<Helper>>
+    +string cid
     +string pinFile(file)
     +string pinJSON(json)
-    +{cid, ok} pinAndVerify(content)
 }
 
-class OffchainIndex {
-    <<Database/Index>>
+class DatabaseCache {
+    <<Database>>
     +storeIssuanceRecord(record)
     +getRecordByTokenId(tokenId)
     +getByFileHash(hash)
@@ -103,17 +90,15 @@ User <|-- Verifier
 
 Issuer --|> BackendAPI : interacts with
 BackendAPI o-- IPFSService : uses
-BackendAPI o-- OffchainIndex : uses
+BackendAPI o-- DatabaseCache : uses
 BackendAPI --|> CertificateNFT : calls mint/revoke
-CertificateNFT ..|> AccessControl : uses
 
 Holder "1" -- "0..*" CertificateNFT : owns
 Verifier --|> CertificateNFT : queries
 Verifier ..> Holder : requests original file
-Verifier ..> IPFSService : (optional) fetch file by CID
 ```
 
-
+---
 
 ## 2) Sequence Diagrams
 
