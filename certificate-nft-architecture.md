@@ -9,7 +9,7 @@ This pack contains:
 - **ERC‑721 Metadata JSON** example
 - **Tech Checklist** for implementation
 
----
+
 
 ## 1) UML Class Diagram (Mermaid)
 
@@ -113,7 +113,7 @@ Verifier ..> Holder : requests original file
 Verifier ..> IPFSService : (optional) fetch file by CID
 ```
 
----
+
 
 ## 2) Sequence Diagrams
 
